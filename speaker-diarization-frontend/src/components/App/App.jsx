@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import Home from '../Home/Home';
-import AudioPlayer from '../Player/AudioPlayer';
+import AudioPlayer from "../Player/AudioPlayer";
 
 const App = () => {
     return (
@@ -11,7 +11,7 @@ const App = () => {
                 <Navigation />
                 <main style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
                         <Route path="/export" />
                         <Route path="/documents" />
                     </Routes>
