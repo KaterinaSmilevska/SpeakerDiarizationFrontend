@@ -58,6 +58,7 @@ const Navigation = () => {
                         height: '100%',
                     }}
                 >
+                    {/* Header Section */}
                     <Box
                         sx={{
                             display: 'flex',

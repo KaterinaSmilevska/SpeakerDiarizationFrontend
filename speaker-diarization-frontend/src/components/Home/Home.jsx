@@ -1,15 +1,8 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import AudioPlayer from "../Player/AudioPlayer";
+import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 
-// Static Data: Simulating JSON response from backend
-const speakers = [
-    { name: "Speaker 1", startTime: 5.0, endTime: 10.0 },
-    { name: "Speaker 2", startTime: 12.0, endTime: 15.0 },
-    { name: "Speaker 3", startTime: 20.0, endTime: 25.0 },
-];
-
-const Home = () => {
+const Home =  ({ speakers, currentTime }) => {
     return (
         <Box
             sx={{
@@ -19,14 +12,8 @@ const Home = () => {
                 overflow: 'auto',
             }}
         >
-            <Typography variant="h4" gutterBottom>
-                Welcome to Home
-            </Typography>
-
-            <AudioPlayer
-                audioSrc="path_to_your_audio_file.mp3"
-                speakers={speakers}
-            />
+            <Typography variant="h4">Welcome Home</Typography>
+            <SpeakerWaveform speakers={speakers} currentTime={currentTime} />
         </Box>
     );
 };
