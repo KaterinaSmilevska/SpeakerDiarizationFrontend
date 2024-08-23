@@ -7,9 +7,17 @@ import AudioPlayer from "../Player/AudioPlayer";
 const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const speakers = [
-        { name: "Speaker 1", startTime: 5.0, endTime: 10.0, content: 'Speaker 1 content' },
-        { name: "Speaker 2", startTime: 12.0, endTime: 15.0, content: 'Speaker 2 content' },
-        { name: "Speaker 3", startTime: 20.0, endTime: 25.0, content: 'Speaker 3 content' },
+        { name: "Speaker 1", startTime: 0.0, endTime: 2.0, content: 'Speaker 1 content' },
+        { name: "Speaker 2", startTime: 6.0, endTime: 9.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 10.0, endTime: 12.0, content: 'Speaker 3 content' },
+        { name: "Speaker 2", startTime: 12.0, endTime: 21.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 22.0, endTime: 27.0, content: 'Speaker 3 content' },
+        { name: "Speaker 2", startTime: 27.0, endTime: 37.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 37.0, endTime: 47.0, content: 'Speaker 3 content' },
+        { name: "Speaker 2", startTime: 47.0, endTime: 50.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 50.0, endTime: 55.0, content: 'Speaker 3 content' },
+        { name: "Speaker 2", startTime: 55.0, endTime: 60.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 60.0, endTime: 83.0, content: 'Speaker 3 content' },
     ];
 
     const handleTimeUpdate = (time) => {
