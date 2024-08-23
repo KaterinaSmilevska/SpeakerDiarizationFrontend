@@ -1,5 +1,5 @@
-import React, { useState} from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import Home from '../Home/Home';
 import AudioPlayer from "../Player/AudioPlayer";
@@ -7,9 +7,9 @@ import AudioPlayer from "../Player/AudioPlayer";
 const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const speakers = [
-        { name: "Speaker 1", startTime: 5.0, endTime: 10.0 },
-        { name: "Speaker 2", startTime: 12.0, endTime: 15.0 },
-        { name: "Speaker 3", startTime: 20.0, endTime: 25.0 },
+        { name: "Speaker 1", startTime: 5.0, endTime: 10.0, content: 'Speaker 1 content' },
+        { name: "Speaker 2", startTime: 12.0, endTime: 15.0, content: 'Speaker 2 content' },
+        { name: "Speaker 3", startTime: 20.0, endTime: 25.0, content: 'Speaker 3 content' },
     ];
 
     const handleTimeUpdate = (time) => {
@@ -22,22 +22,32 @@ const App = () => {
                 <Navigation />
                 <main style={{
                     flexGrow: 1,
-                    marginLeft: 300, // Adjust to match the width of the drawer when open
+                    marginLeft: 300,
                     display: 'flex',
                     flexDirection: 'column',
-                    overflow: 'hidden' // Hide any overflowing content
+                    overflow: 'hidden'
                 }}>
                     <Routes>
-                        <Route path="/" element={<Home speakers={speakers} currentTime={currentTime} />} />
+                        <Route
+                            path="/"
+                            element={
+                                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                    <div style={{ flexGrow: 1, overflow: 'auto' }}>
+                                        <Home speakers={speakers} currentTime={currentTime} />
+                                    </div>
+                                    <div style={{ flexShrink: 0 }}>
+                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} />
+                                    </div>
+                                </div>
+                            }
+                        />
                         <Route path="/export" />
                         <Route path="/documents" />
                     </Routes>
                 </main>
-                <AudioPlayer onTimeUpdate={handleTimeUpdate} />
             </div>
         </Router>
     );
 };
 
 export default App;
-

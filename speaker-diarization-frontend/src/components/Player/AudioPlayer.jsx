@@ -1,25 +1,35 @@
-import {useEffect, useRef, useState} from "react";
-import {useLocation} from "react-router-dom";
-import {Box, IconButton, Slider} from "@mui/material";
-import {Pause, PlayArrow, Repeat, SkipNext, SkipPrevious} from "@mui/icons-material";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Box, IconButton, Slider, Typography } from "@mui/material";
+import { Pause, PlayArrow, Repeat, SkipNext, SkipPrevious, VolumeUp } from "@mui/icons-material";
 
 const AudioPlayer = ({ onTimeUpdate }) => {
     const { pathname } = useLocation();
     const [isPlaying, setIsPlaying] = useState(false);
+    const [sliderValue, setSliderValue] = useState(0);
+    const [duration, setDuration] = useState(0); // State for the audio duration
+    const [volume, setVolume] = useState(1); // State for the volume control
     const audioRef = useRef(null);
 
     useEffect(() => {
         if (pathname !== '/') return;
 
+        const handleLoadedMetadata = () => {
+            setDuration(audioRef.current.duration); // Set duration when metadata is loaded
+        };
+
         const handleTimeUpdate = () => {
             const currentTime = audioRef.current.currentTime;
+            setSliderValue(currentTime);
             onTimeUpdate(currentTime);
         };
 
         const audioElement = audioRef.current;
+        audioElement.addEventListener('loadedmetadata', handleLoadedMetadata); // Event for duration
         audioElement.addEventListener('timeupdate', handleTimeUpdate);
 
         return () => {
+            audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
             audioElement.removeEventListener('timeupdate', handleTimeUpdate);
         };
     }, [pathname, onTimeUpdate]);
@@ -31,6 +41,23 @@ const AudioPlayer = ({ onTimeUpdate }) => {
             audioRef.current.play();
         }
         setIsPlaying(!isPlaying);
+    };
+
+    const handleSliderChange = (event, newValue) => {
+        setSliderValue(newValue);
+        audioRef.current.currentTime = newValue;
+        onTimeUpdate(newValue);
+    };
+
+    const handleVolumeChange = (event, newValue) => {
+        setVolume(newValue);
+        audioRef.current.volume = newValue;
+    };
+
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
     if (pathname !== '/') return null;
@@ -56,7 +83,26 @@ const AudioPlayer = ({ onTimeUpdate }) => {
                 borderTop: '4px solid #10263C',
             }}
         >
-            <audio ref={audioRef} src="path_to_your_audio_file.mp3" />
+            <audio ref={audioRef} src="LE_listening_C1_A_job_interview.mp3" />
+
+            {/* Volume Slider positioned in the top left corner with margins */}
+            <Box sx={{ position: 'absolute', top: 20, left: 20, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <VolumeUp sx={{ color: '#ffffff' }} />
+                <Slider
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    sx={{
+                        width: 100,
+                        color: '#ffffff',
+                        '& .MuiSlider-thumb': {
+                            backgroundColor: '#ffffff',
+                        },
+                    }}
+                />
+            </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 1 }}>
                 <IconButton color="inherit">
@@ -86,12 +132,13 @@ const AudioPlayer = ({ onTimeUpdate }) => {
                 </IconButton>
             </Box>
 
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
                 <Slider
                     aria-label="Audio Playback"
-                    value={audioRef.current?.currentTime || 0}
+                    value={sliderValue}
+                    onChange={handleSliderChange}
                     min={0}
-                    max={audioRef.current?.duration || 0}
+                    max={duration}
                     sx={{
                         width: '70%',
                         height: 12,
@@ -105,6 +152,9 @@ const AudioPlayer = ({ onTimeUpdate }) => {
                         },
                     }}
                 />
+                <Typography variant="body2" sx={{ color: '#ffffff' }}>
+                    {formatTime(sliderValue)} / {formatTime(duration)}
+                </Typography>
             </Box>
         </Box>
     );
