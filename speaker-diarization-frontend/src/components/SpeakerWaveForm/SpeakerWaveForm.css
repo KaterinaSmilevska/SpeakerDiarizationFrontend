@@ -1,0 +1,26 @@
+@keyframes pulseLine {
+    0% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(1.5);
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+.pulse-bar {
+    display: inline-block;
+    height: 20px;
+    background-color: #07D1DE;
+    margin-right: 2px;
+    flex-grow: 1;
+    animation: pulseLine 1s infinite;
+    animation-delay: calc(0.1s * var(--i));
+}
+
+.pulse-bar.inactive {
+    background-color: #10263C;
+    animation: none;
+}

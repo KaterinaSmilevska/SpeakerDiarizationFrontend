@@ -15,7 +15,7 @@ const AudioPlayer = ({ onTimeUpdate }) => {
         if (pathname !== '/') return;
 
         const handleLoadedMetadata = () => {
-            setDuration(audioRef.current.duration); // Set duration when metadata is loaded
+            setDuration(audioRef.current.duration);
         };
 
         const handleTimeUpdate = () => {

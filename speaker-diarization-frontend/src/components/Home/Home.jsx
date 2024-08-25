@@ -1,11 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 
-const Home =  ({ speakers, currentTime }) => {
-    const currentSpeaker = speakers.find(
-        speaker => currentTime >= speaker.startTime && currentTime <= speaker.endTime
-    );
+const Home = ({ speakers, currentTime, isPlaying }) => {
+    const [displayedText, setDisplayedText] = useState("");
+    const [currentSpeaker, setCurrentSpeaker] = useState(null);
+
+    useEffect(() => {
+        const speaker = speakers.find(
+            speaker => currentTime >= speaker.startTime && currentTime <= speaker.endTime
+        );
+
+        if (speaker) {
+            const chunks = speaker.content.split(' ');
+            const totalWords = chunks.length;
+            const timeElapsed = currentTime - speaker.startTime;
+            const totalDuration = speaker.endTime - speaker.startTime;
+            const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
+
+            setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
+            setCurrentSpeaker(speaker);
+        } else {
+            setDisplayedText("");
+            setCurrentSpeaker(null);
+        }
+    }, [currentTime, speakers]);
 
     return (
         <Box
@@ -14,34 +33,42 @@ const Home =  ({ speakers, currentTime }) => {
                 color: '#ffffff',
                 padding: 3,
                 overflow: 'auto',
+                height: '100%',
+                borderRadius: '10px',
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
             }}
         >
-            <Typography variant="h4" gutterBottom>Welcome Home</Typography>
+            <Typography variant="h6" gutterBottom>
+                Name of the Audio
+            </Typography>
 
-            {currentSpeaker ? (
+            <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
+
+            {displayedText ? (
                 <Box
                     sx={{
-                        marginBottom: 3,
+                        marginTop: 16,
                         padding: 2,
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
                         borderRadius: '10px',
                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
+                        borderLeft: '4px solid #07D1DE',
                     }}
                 >
-                    <Typography variant="h6" gutterBottom>
-                        {currentSpeaker.name}:
+                    <Typography
+                        variant="subtitle1"
+                        sx={{ color: '#07D1DE', fontWeight: 'bold' }}
+                    >
+                        {currentSpeaker?.name}:
                     </Typography>
-                    <Typography variant="body1">
-                        {currentSpeaker.content}
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        {displayedText}
                     </Typography>
                 </Box>
             ) : (
-                <Typography variant="body1" sx={{ marginBottom: 3 }}>
-                    No speaker is currently speaking.
+                <Typography variant="body1" sx={{ marginTop: 3 }}>
                 </Typography>
             )}
-
-            <SpeakerWaveform speakers={speakers} currentTime={currentTime} />
         </Box>
     );
 };
