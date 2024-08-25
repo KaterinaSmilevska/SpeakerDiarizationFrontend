@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, IconButton, Slider, Typography } from "@mui/material";
-import { Pause, PlayArrow, Repeat, SkipNext, SkipPrevious, VolumeUp } from "@mui/icons-material";
+import { Pause, PlayArrow, SkipNext, SkipPrevious, VolumeUp } from "@mui/icons-material";
 
 const AudioPlayer = ({ onTimeUpdate }) => {
     const { pathname } = useLocation();
     const [isPlaying, setIsPlaying] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
-    const [duration, setDuration] = useState(0); // State for the audio duration
-    const [volume, setVolume] = useState(1); // State for the volume control
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
     const audioRef = useRef(null);
 
     useEffect(() => {
@@ -25,7 +25,7 @@ const AudioPlayer = ({ onTimeUpdate }) => {
         };
 
         const audioElement = audioRef.current;
-        audioElement.addEventListener('loadedmetadata', handleLoadedMetadata); // Event for duration
+        audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
         audioElement.addEventListener('timeupdate', handleTimeUpdate);
 
         return () => {
@@ -34,12 +34,17 @@ const AudioPlayer = ({ onTimeUpdate }) => {
         };
     }, [pathname, onTimeUpdate]);
 
-    const handlePlayPause = () => {
-        if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.play();
+    useEffect(() => {
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.play();
+            } else {
+                audioRef.current.pause();
+            }
         }
+    }, [isPlaying]);
+
+    const handlePlayPause = () => {
         setIsPlaying(!isPlaying);
     };
 
@@ -52,6 +57,19 @@ const AudioPlayer = ({ onTimeUpdate }) => {
     const handleVolumeChange = (event, newValue) => {
         setVolume(newValue);
         audioRef.current.volume = newValue;
+    };
+
+    const handleNextTrack = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = duration;
+        }
+    };
+
+    const handlePreviousTrack = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            setIsPlaying(!isPlaying);
+        }
     };
 
     const formatTime = (time) => {
@@ -85,7 +103,6 @@ const AudioPlayer = ({ onTimeUpdate }) => {
         >
             <audio ref={audioRef} src="LE_listening_C1_A_job_interview.mp3" />
 
-            {/* Volume Slider positioned in the top left corner with margins */}
             <Box sx={{ position: 'absolute', top: 20, left: 20, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <VolumeUp sx={{ color: '#ffffff' }} />
                 <Slider
@@ -105,10 +122,7 @@ const AudioPlayer = ({ onTimeUpdate }) => {
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 1 }}>
-                <IconButton color="inherit">
-                    <Repeat />
-                </IconButton>
-                <IconButton color="inherit">
+                <IconButton color="inherit" onClick={handlePreviousTrack}>
                     <SkipPrevious />
                 </IconButton>
                 <Box
@@ -127,7 +141,7 @@ const AudioPlayer = ({ onTimeUpdate }) => {
                         {isPlaying ? <Pause sx={{ fontSize: 36 }} /> : <PlayArrow sx={{ fontSize: 36 }} />}
                     </IconButton>
                 </Box>
-                <IconButton color="inherit">
+                <IconButton color="inherit" onClick={handleNextTrack}>
                     <SkipNext />
                 </IconButton>
             </Box>
