@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Box, IconButton, Slider, Typography } from "@mui/material";
 import { Pause, PlayArrow, SkipNext, SkipPrevious, VolumeUp } from "@mui/icons-material";
 
-const AudioPlayer = ({ onTimeUpdate }) => {
+const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
     const { pathname } = useLocation();
     const [isPlaying, setIsPlaying] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
@@ -41,8 +41,10 @@ const AudioPlayer = ({ onTimeUpdate }) => {
             } else {
                 audioRef.current.pause();
             }
+            onPlayPause(isPlaying);
         }
-    }, [isPlaying]);
+    }, [isPlaying, onPlayPause]);
+
 
     const handlePlayPause = () => {
         setIsPlaying(!isPlaying);

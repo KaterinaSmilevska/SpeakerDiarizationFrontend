@@ -63,7 +63,7 @@ const Home = ({ speakers, currentTime, isPlaying }) => {
                     >
                         {currentSpeaker?.name}:
                     </Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>
+                    <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic'}}>
                         {displayedText}
                     </Typography>
                 </Box>

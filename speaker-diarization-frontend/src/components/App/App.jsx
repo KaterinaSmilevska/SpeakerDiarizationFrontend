@@ -6,6 +6,7 @@ import AudioPlayer from "../Player/AudioPlayer";
 
 const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
     const speakers = [
         { name: "Speaker 1", startTime: 1.0, endTime: 10.0, content: 'Thanks for joining us on Mid-Morning this Thursday. It is almost time for the kids to start putting the backpacks on. They\'re going to have the homework.' },
         { name: "Speaker 2", startTime: 10.0, endTime: 23.0, content: 'New study shows that students in those early elementary school years are actually getting too much homework.\n' +
@@ -21,6 +22,10 @@ const App = () => {
 
     const handleTimeUpdate = (time) => {
         setCurrentTime(time);
+    };
+
+    const handlePlayPause = (playing) => {
+        setIsPlaying(playing);
     };
 
     return (
@@ -39,16 +44,14 @@ const App = () => {
                             element={
                                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                     <div style={{ flexGrow: 1, overflow: 'auto' }}>
-                                        <Home speakers={speakers} currentTime={currentTime} />
+                                        <Home speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
-                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} />
+                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} onPlayPause={handlePlayPause} />
                                     </div>
                                 </div>
                             }
                         />
-                        <Route path="/export" />
-                        <Route path="/documents" />
                     </Routes>
                 </main>
             </div>

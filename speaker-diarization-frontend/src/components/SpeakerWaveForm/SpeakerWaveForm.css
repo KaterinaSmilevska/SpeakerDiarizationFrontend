@@ -24,3 +24,7 @@
     background-color: #10263C;
     animation: none;
 }
+
+.waveform-container.paused .pulse-bar {
+    animation: none;
+}

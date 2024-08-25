@@ -29,14 +29,14 @@ const SpeakerWaveform = ({ speakers, currentTime, isPlaying }) => {
                         <Typography
                             variant="subtitle1"
                             color={isSpeaking ? '#07D1DE' : "textSecondary"}
-                            font-weight = {isSpeaking ? 'bold' : 'normal'}
+                            fontWeight={isSpeaking ? 'bold' : 'normal'}
                             sx={{ mr: 2 }}
                         >
                             {speaker.name}
                         </Typography>
                         <Box
                             sx={{ display: 'flex', alignItems: 'center', width: '90%', height: '50px' }}
-                            className={isPlaying ? 'waveform-container' : ''}
+                            className={isPlaying ? 'waveform-container' : 'waveform-container paused'}
                         >
                             {[...Array(40)].map((_, i) => (
                                 <Box
