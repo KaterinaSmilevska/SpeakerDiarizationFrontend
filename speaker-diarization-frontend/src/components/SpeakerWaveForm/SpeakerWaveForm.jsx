@@ -28,7 +28,8 @@ const SpeakerWaveform = ({ speakers, currentTime, isPlaying }) => {
                     <Box key={index} sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                         <Typography
                             variant="subtitle1"
-                            color={isSpeaking ? "primary" : "textSecondary"}
+                            color={isSpeaking ? '#07D1DE' : "textSecondary"}
+                            font-weight = {isSpeaking ? 'bold' : 'normal'}
                             sx={{ mr: 2 }}
                         >
                             {speaker.name}
