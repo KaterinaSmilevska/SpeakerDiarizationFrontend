@@ -7,19 +7,21 @@ const Home = ({ speakers, currentTime, isPlaying }) => {
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
 
     useEffect(() => {
-        const speaker = speakers.find(
+
+        const activeSpeakers = speakers.filter(
             speaker => currentTime >= speaker.startTime && currentTime <= speaker.endTime
         );
 
-        if (speaker) {
-            const chunks = speaker.content.split(' ');
+        if (activeSpeakers.length > 0) {
+            const latestSpeaker = activeSpeakers[activeSpeakers.length - 1];
+            const chunks = latestSpeaker.content.split(' ');
             const totalWords = chunks.length;
-            const timeElapsed = currentTime - speaker.startTime;
-            const totalDuration = speaker.endTime - speaker.startTime;
+            const timeElapsed = currentTime - latestSpeaker.startTime;
+            const totalDuration = latestSpeaker.endTime - latestSpeaker.startTime;
             const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
 
             setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
-            setCurrentSpeaker(speaker);
+            setCurrentSpeaker(latestSpeaker);
         } else {
             setDisplayedText("");
             setCurrentSpeaker(null);
@@ -47,7 +49,7 @@ const Home = ({ speakers, currentTime, isPlaying }) => {
             {displayedText ? (
                 <Box
                     sx={{
-                        marginTop: 16,
+                        marginTop: 10,
                         padding: 2,
                         backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
                         borderRadius: '10px',

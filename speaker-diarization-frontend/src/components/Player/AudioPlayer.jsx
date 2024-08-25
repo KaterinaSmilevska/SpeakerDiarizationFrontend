@@ -101,7 +101,7 @@ const AudioPlayer = ({ onTimeUpdate }) => {
                 borderTop: '4px solid #10263C',
             }}
         >
-            <audio ref={audioRef} src="LE_listening_C1_A_job_interview.mp3" />
+            <audio ref={audioRef} src="Panel Discussion_ Are Young Students Getting Too Much Homework_.mp3" />
 
             <Box sx={{ position: 'absolute', top: 20, left: 20, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <VolumeUp sx={{ color: '#ffffff' }} />
