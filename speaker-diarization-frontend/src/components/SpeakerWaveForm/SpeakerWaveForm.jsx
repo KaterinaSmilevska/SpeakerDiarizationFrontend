@@ -8,7 +8,7 @@ const SpeakerWaveform = ({ speakers, currentTime, isPlaying }) => {
     }
 
     const combinedSpeakers = speakers.reduce((acc, speaker) => {
-        const existingSpeaker = acc.find((sp) => sp.name === speaker.name);
+        const existingSpeaker = acc.find((sp) => sp.id === speaker.id);
         if (existingSpeaker) {
             existingSpeaker.timeRanges.push([speaker.startTime, speaker.endTime]);
         } else {
