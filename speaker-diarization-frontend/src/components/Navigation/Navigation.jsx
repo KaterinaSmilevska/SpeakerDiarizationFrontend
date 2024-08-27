@@ -150,7 +150,6 @@ const Navigation = () => {
                 </Box>
             </Drawer>
 
-            {/* Right Border */}
             <Box
                 sx={{
                     position: 'absolute',
