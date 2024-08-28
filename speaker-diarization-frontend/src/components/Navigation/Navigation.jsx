@@ -13,19 +13,34 @@ import {
 } from '@mui/material';
 import { Home, Description, ImportExport, ChevronRight, ChevronLeft } from '@mui/icons-material';
 import sound from '../../assets/sound.png';
+import UploadAudio from "../UploadAudio/UploadAudio";
 
 const drawerWidth = 300;
 const collapsedWidth = 80;
 
 const selectedGradient = 'linear-gradient(90deg, #0F2A3E, #10263C)';
 
-const Navigation = () => {
+const Navigation = ({ onFileUpload }) => {
     const { pathname } = useLocation();
     const [open, setOpen] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
+
+    const openUploadAudio= () => {
+        setIsModalOpen(true);
+    };
+
+    const closeUploadAudio = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleFileUpload = (name) => {
+        onFileUpload(name);
+        closeUploadAudio();
+    }
 
     return (
         <Box
@@ -75,12 +90,12 @@ const Navigation = () => {
                                     style={{ width: 40, height: 40, marginRight: 8 }}
                                 />
                                 <Typography variant="h6">App Name</Typography>
-                                <IconButton onClick={handleDrawerToggle}>
+                                <IconButton onClick={handleDrawerToggle} aria-label="Collapse menu">
                                     <ChevronLeft sx={{ color: 'white' }} />
                                 </IconButton>
                             </>
                         ) : (
-                            <IconButton onClick={handleDrawerToggle}>
+                            <IconButton onClick={handleDrawerToggle} aria-label="Expand menu">
                                 <ChevronRight sx={{ color: 'white' }} />
                             </IconButton>
                         )}
@@ -91,6 +106,7 @@ const Navigation = () => {
                             flexGrow: 1,
                             display: 'flex',
                             flexDirection: 'column',
+                            overflowY: 'auto', // Add overflow handling if needed
                         }}
                     >
                         <ListItem
@@ -112,6 +128,22 @@ const Navigation = () => {
                         </ListItem>
                         <ListItem
                             button
+                            onClick={openUploadAudio}
+                            sx={{
+                                background: pathname === "/documents" ? selectedGradient : 'inherit',
+                                color: pathname === "/documents" ? '#ffffff' : 'inherit',
+                                borderRadius: 2,
+                                padding: '8px 16px',
+                                minHeight: 'auto',
+                            }}
+                        >
+                            <ListItemIcon sx={{ color: 'inherit' }}>
+                                <Description />
+                            </ListItemIcon>
+                            {open && <ListItemText primary="Upload File" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
+                        </ListItem>
+                        <ListItem
+                            button
                             component={Link}
                             to="/export"
                             sx={{
@@ -126,23 +158,6 @@ const Navigation = () => {
                                 <ImportExport />
                             </ListItemIcon>
                             {open && <ListItemText primary="Export" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
-                        </ListItem>
-                        <ListItem
-                            button
-                            component={Link}
-                            to="/documents"
-                            sx={{
-                                background: pathname === "/documents" ? selectedGradient : 'inherit',
-                                color: pathname === "/documents" ? '#ffffff' : 'inherit',
-                                borderRadius: 2,
-                                padding: '8px 16px',
-                                minHeight: 'auto',
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: 'inherit' }}>
-                                <Description />
-                            </ListItemIcon>
-                            {open && <ListItemText primary="Documents" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
                         </ListItem>
                     </List>
 
@@ -161,6 +176,8 @@ const Navigation = () => {
                     borderLeft: '4px solid #10263C',
                 }}
             />
+
+            <UploadAudio open={isModalOpen} onClose={closeUploadAudio} onFileUpload = {handleFileUpload} />
         </Box>
     );
 };

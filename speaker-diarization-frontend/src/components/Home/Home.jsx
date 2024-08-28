@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 
-const Home = ({ speakers, currentTime, isPlaying }) => {
+const Home = ({ speakers, currentTime, isPlaying, fileName }) => {
     const [displayedText, setDisplayedText] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
 
@@ -40,9 +40,13 @@ const Home = ({ speakers, currentTime, isPlaying }) => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
             }}
         >
-            <Typography variant="h6" gutterBottom>
-                Name of the Audio
-            </Typography>
+
+            {/* Display the file name if available */}
+            {fileName && (
+                <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
+                    Uploaded File: {fileName}
+                </Typography>
+            )}
 
             <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
 
@@ -69,8 +73,10 @@ const Home = ({ speakers, currentTime, isPlaying }) => {
                 </Box>
             ) : (
                 <Typography variant="body1" sx={{ marginTop: 3 }}>
+                    {/* Placeholder for when no text is displayed */}
                 </Typography>
             )}
+
         </Box>
     );
 };
