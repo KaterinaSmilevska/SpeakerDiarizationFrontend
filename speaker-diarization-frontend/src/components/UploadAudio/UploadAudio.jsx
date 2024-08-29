@@ -6,17 +6,15 @@ const UploadAudio = ({ open, onClose, onFileUpload }) => {
     const [file, setFile] = useState(null);
 
     const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            onFileUpload(file.name); // Call the parent function with the file name
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
         }
     };
 
     const handleUpload = () => {
         if (file) {
-            // Handle file upload logic here
-            console.log('File selected:', file);
-            // Reset file input
+            onFileUpload(file);
             setFile(null);
             onClose();
         }

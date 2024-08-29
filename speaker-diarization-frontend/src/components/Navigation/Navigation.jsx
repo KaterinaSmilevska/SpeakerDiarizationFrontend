@@ -106,7 +106,7 @@ const Navigation = ({ onFileUpload }) => {
                             flexGrow: 1,
                             display: 'flex',
                             flexDirection: 'column',
-                            overflowY: 'auto', // Add overflow handling if needed
+                            overflowY: 'auto',
                         }}
                     >
                         <ListItem

@@ -7,7 +7,7 @@ import AudioPlayer from "../Player/AudioPlayer";
 const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [fileName, setFileName] = useState('');
+    const [audioFile, setAudioFile] = useState(null);
 
     const speakers = [
         { name: "Speaker 1", startTime: 1.0, endTime: 10.0, content: 'Thanks for joining us on Mid-Morning this Thursday. It is almost time for the kids to start putting the backpacks on. They\'re going to have the homework.' },
@@ -30,8 +30,8 @@ const App = () => {
         setIsPlaying(playing);
     };
 
-    const handleFileUpload = (name) => {
-        setFileName(name);
+    const handleFileUpload = (file) => {
+        setAudioFile(file);
     }
 
     return (
@@ -50,10 +50,10 @@ const App = () => {
                             element={
                                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                     <div style={{ flexGrow: 1, overflow: 'auto' }}>
-                                        <Home speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} fileName={fileName}/>
+                                        <Home speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} fileName={audioFile? audioFile.name : 'No file uploaded'}/>
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
-                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} onPlayPause={handlePlayPause} />
+                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} onPlayPause={handlePlayPause} audioFile={audioFile}/>
                                     </div>
                                 </div>
                             }
