@@ -30,19 +30,7 @@ const SpeakersComponent = () => {
         }
 
     }
-    //
-    // useEffect(() => {
-    //     const fetchSpeakers = async () => {
-    //         try {
-    //             const response = await axios.get('/speakers');
-    //             setSpeakers(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching speakers:', error);
-    //         }
-    //     };
-    //
-    //     fetchSpeakers();
-    // }, []);
+
     return (
         <div>
             <h1>Speakers</h1>
