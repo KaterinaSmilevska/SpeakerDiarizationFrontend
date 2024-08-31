@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Box, IconButton, Slider, Typography } from "@mui/material";
 import { Pause, PlayArrow, SkipNext, SkipPrevious, VolumeUp } from "@mui/icons-material";
 
-const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
+const AudioPlayer = ({ onTimeUpdate, onPlayPause, audioFile }) => {
     const { pathname } = useLocation();
     const [isPlaying, setIsPlaying] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
@@ -14,17 +14,18 @@ const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
     useEffect(() => {
         if (pathname !== '/') return;
 
+        const audioElement = audioRef.current;
+
         const handleLoadedMetadata = () => {
-            setDuration(audioRef.current.duration);
+            setDuration(audioElement.duration);
         };
 
         const handleTimeUpdate = () => {
-            const currentTime = audioRef.current.currentTime;
+            const currentTime = audioElement.currentTime;
             setSliderValue(currentTime);
             onTimeUpdate(currentTime);
         };
 
-        const audioElement = audioRef.current;
         audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
         audioElement.addEventListener('timeupdate', handleTimeUpdate);
 
@@ -36,18 +37,35 @@ const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
 
     useEffect(() => {
         if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.play();
-            } else {
-                audioRef.current.pause();
-            }
-            onPlayPause(isPlaying);
+            audioRef.current.volume = volume;
         }
-    }, [isPlaying, onPlayPause]);
+    }, [volume]);
 
+    useEffect(() => {
+        const audioElement = audioRef.current;
+
+        if (audioFile) {
+            const audioURL = URL.createObjectURL(audioFile);
+            audioElement.src = audioURL;
+            setIsPlaying(false);
+
+            return () => {
+                URL.revokeObjectURL(audioURL);
+            };
+        }
+    }, [audioFile]);
 
     const handlePlayPause = () => {
-        setIsPlaying(!isPlaying);
+        if(audioFile) {
+            if (isPlaying) {
+                audioRef.current.pause();
+            } else {
+                audioRef.current.play().catch(error => console.error("Error attempting to play audio:", error));
+            }
+            setIsPlaying(!isPlaying);
+            onPlayPause(!isPlaying);
+        }
+       
     };
 
     const handleSliderChange = (event, newValue) => {
@@ -58,7 +76,9 @@ const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
 
     const handleVolumeChange = (event, newValue) => {
         setVolume(newValue);
-        audioRef.current.volume = newValue;
+        if (audioRef.current) {
+            audioRef.current.volume = newValue;
+        }
     };
 
     const handleNextTrack = () => {
@@ -70,7 +90,6 @@ const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
     const handlePreviousTrack = () => {
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
-            setIsPlaying(!isPlaying);
         }
     };
 
@@ -103,7 +122,7 @@ const AudioPlayer = ({ onTimeUpdate, onPlayPause}) => {
                 borderTop: '4px solid #10263C',
             }}
         >
-            <audio ref={audioRef} src="Panel Discussion_ Are Young Students Getting Too Much Homework_.mp3" />
+            <audio ref={audioRef} />
 
             <Box sx={{ position: 'absolute', top: 20, left: 20, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <VolumeUp sx={{ color: '#ffffff' }} />
