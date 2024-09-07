@@ -1,32 +1,69 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
+import axios from "../../axios";
+import convertTimeToSeconds from "../../utils/timeUtils";
 
-const Home = ({ speakers, currentTime, isPlaying, fileName }) => {
+
+const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
+    const [speakers, setSpeakers] = useState([]);
     const [displayedText, setDisplayedText] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
 
     useEffect(() => {
+        const fetchSpeakers = async () => {
+            try {
+                if (fileName && selectedFile) {
+                    const formData = new FormData();
+                    formData.append("audioFile", selectedFile);
 
-        const activeSpeakers = speakers.filter(
-            speaker => currentTime >= speaker.startTime && currentTime <= speaker.endTime
-        );
+                    await axios.post(`/speakers/${fileName}`, formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    }).then(response => {
+                        console.log("Speaker data:", response.data);
+                        setSpeakers(response.data.speakers);
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching speaker data:", error);
+            }
+        };
 
-        if (activeSpeakers.length > 0) {
-            const latestSpeaker = activeSpeakers[activeSpeakers.length - 1];
-            const chunks = latestSpeaker.content.split(' ');
-            const totalWords = chunks.length;
-            const timeElapsed = currentTime - latestSpeaker.startTime;
-            const totalDuration = latestSpeaker.endTime - latestSpeaker.startTime;
-            const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
+        fetchSpeakers().catch(error => {
+            console.error("Unhandled error:", error)
+        });
+    }, [fileName, selectedFile]);
 
-            setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
-            setCurrentSpeaker(latestSpeaker);
-        } else {
-            setDisplayedText("");
-            setCurrentSpeaker(null);
+    useEffect(() => {
+        if (isPlaying) {
+            const activeSegments = speakers.flatMap(speaker =>
+                speaker.segments
+                    .filter(segment =>
+                        currentTime >= convertTimeToSeconds(segment.startTime) &&
+                        currentTime <= convertTimeToSeconds(segment.endTime)
+                    )
+                    .map(segment => ({
+                        ...segment,
+                        speakerId: speaker.speakerId
+                    }))
+            );
+
+            if (activeSegments.length > 0) {
+                const latestSegment = activeSegments[activeSegments.length - 1];
+                const chunks = latestSegment.content.split(' ');
+                const totalWords = chunks.length;
+                const timeElapsed = currentTime - convertTimeToSeconds(latestSegment.startTime);
+                const totalDuration = convertTimeToSeconds(latestSegment.endTime) - convertTimeToSeconds(latestSegment.startTime);
+                const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
+
+                setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
+                setCurrentSpeaker({ speakerId: latestSegment.speakerId });
+            } else {
+                setDisplayedText("");
+                setCurrentSpeaker(null);
+            }
         }
-    }, [currentTime, speakers]);
+    }, [currentTime, speakers, isPlaying]);
 
     return (
         <Box
@@ -65,9 +102,9 @@ const Home = ({ speakers, currentTime, isPlaying, fileName }) => {
                         variant="subtitle1"
                         sx={{ color: '#07D1DE', fontWeight: 'bold' }}
                     >
-                        {currentSpeaker?.name}:
+                        Speaker {currentSpeaker?.speakerId}:
                     </Typography>
-                    <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic'}}>
+                    <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic' }}>
                         {displayedText}
                     </Typography>
                 </Box>

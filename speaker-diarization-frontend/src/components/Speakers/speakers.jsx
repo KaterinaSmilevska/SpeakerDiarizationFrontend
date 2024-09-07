@@ -4,7 +4,6 @@ import axios from '../../axios'
 const SpeakersComponent = () => {
     const [speakers, setSpeakers] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [audioUrl, setAudioUrl] = useState(null);
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
@@ -24,7 +23,6 @@ const SpeakersComponent = () => {
                 }
             });
             setSpeakers(response.data.speakers);
-            setAudioUrl(URL.createObjectURL(selectedFile));
         } catch (error) {
             console.error('Error fetching speakers:', error);
         }
