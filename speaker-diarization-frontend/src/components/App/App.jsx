@@ -9,19 +9,6 @@ const App = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioFile, setAudioFile] = useState(null);
 
-    const speakers = [
-        { name: "Speaker 1", startTime: 1.0, endTime: 10.0, content: 'Thanks for joining us on Mid-Morning this Thursday. It is almost time for the kids to start putting the backpacks on. They\'re going to have the homework.' },
-        { name: "Speaker 2", startTime: 10.0, endTime: 23.0, content: 'New study shows that students in those early elementary school years are actually getting too much homework.\n' +
-                'In the worst case, researchers found children in the first grade had up to three times the workload recommended by education experts.' },
-        { name: "Speaker 2", startTime: 24.0, endTime: 40.0, content: 'As I said, we assure you this study was done by professionals not by children.\n' +
-                'But it is interesting. They have this kind of 10 minute guideline where in kindergarten you\'re supposed to have no homework in first grade 10 minutes.\n' +
-                'But Mike, the first graders in this survey, they were doing quite a bit of homework.'},
-        { name: "Speaker 3", startTime: 40.0, endTime: 51.0, content: '28 minutes, which I think is crazy. I can\'t think of a first grader having the attention span to do anything for 28 minutes.\n' +
-                'And you made a good point. A lot of them are just kind of learning to read.'},
-        { name: "Speaker 4", startTime: 43.0, endTime: 44.0, content: 'That\'s a lot'},
-
-    ];
-
     const handleTimeUpdate = (time) => {
         setCurrentTime(time);
     };
@@ -50,7 +37,7 @@ const App = () => {
                             element={
                                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                     <div style={{ flexGrow: 1, overflow: 'auto' }}>
-                                        <Home speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} fileName={audioFile? audioFile.name : 'No file uploaded'}/>
+                                        <Home currentTime={currentTime} isPlaying={isPlaying} fileName={audioFile? audioFile.name : 'No file uploaded'} selectedFile={audioFile}/>
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
                                         <AudioPlayer onTimeUpdate={handleTimeUpdate} onPlayPause={handlePlayPause} audioFile={audioFile}/>

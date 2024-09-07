@@ -1,32 +1,77 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
+import axios from "../../axios";
+import convertTimeToSeconds from "../../utils/timeUtils";
 
-const Home = ({ speakers, currentTime, isPlaying, fileName }) => {
+
+const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
+    const [speakers, setSpeakers] = useState([]);
     const [displayedText, setDisplayedText] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        const fetchSpeakers = async () => {
+            setLoading(true);
+            try {
+                if (fileName && selectedFile) {
+                    const formData = new FormData();
+                    formData.append("audioFile", selectedFile);
 
-        const activeSpeakers = speakers.filter(
-            speaker => currentTime >= speaker.startTime && currentTime <= speaker.endTime
-        );
+                    setSpeakers([]);
+                    setDisplayedText("");
+                    setCurrentSpeaker(null);
 
-        if (activeSpeakers.length > 0) {
-            const latestSpeaker = activeSpeakers[activeSpeakers.length - 1];
-            const chunks = latestSpeaker.content.split(' ');
-            const totalWords = chunks.length;
-            const timeElapsed = currentTime - latestSpeaker.startTime;
-            const totalDuration = latestSpeaker.endTime - latestSpeaker.startTime;
-            const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
+                    await axios.post(`/speakers/${fileName}`, formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    }).then(response => {
+                        console.log("Speaker data:", response.data);
+                        setSpeakers(response.data.speakers);
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching speaker data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
-            setCurrentSpeaker(latestSpeaker);
-        } else {
-            setDisplayedText("");
-            setCurrentSpeaker(null);
+        fetchSpeakers().catch(error => {
+            console.error("Unhandled error:", error)
+        });
+    }, [fileName, selectedFile]);
+
+    useEffect(() => {
+        if (isPlaying) {
+            const activeSegments = speakers.flatMap(speaker =>
+                speaker.segments
+                    .filter(segment =>
+                        currentTime >= convertTimeToSeconds(segment.startTime) &&
+                        currentTime <= convertTimeToSeconds(segment.endTime)
+                    )
+                    .map(segment => ({
+                        ...segment,
+                        speakerId: speaker.speakerId
+                    }))
+            );
+
+            if (activeSegments.length > 0) {
+                const latestSegment = activeSegments[activeSegments.length - 1];
+                const chunks = latestSegment.content.split(' ');
+                const totalWords = chunks.length;
+                const timeElapsed = currentTime - convertTimeToSeconds(latestSegment.startTime);
+                const totalDuration = convertTimeToSeconds(latestSegment.endTime) - convertTimeToSeconds(latestSegment.startTime);
+                const wordIndex = Math.floor((timeElapsed / totalDuration) * totalWords);
+
+                setDisplayedText(chunks.slice(0, wordIndex + 1).join(' '));
+                setCurrentSpeaker({ speakerId: latestSegment.speakerId });
+            } else {
+                setDisplayedText("");
+                setCurrentSpeaker(null);
+            }
         }
-    }, [currentTime, speakers]);
+    }, [currentTime, speakers, isPlaying]);
 
     return (
         <Box
@@ -40,43 +85,47 @@ const Home = ({ speakers, currentTime, isPlaying, fileName }) => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
             }}
         >
-
-            {/* Display the file name if available */}
-            {fileName && (
-                <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
-                    Uploaded File: {fileName}
-                </Typography>
-            )}
-
-            <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
-
-            {displayedText ? (
-                <Box
-                    sx={{
-                        marginTop: 10,
-                        padding: 2,
-                        backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
-                        borderRadius: '10px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
-                        borderLeft: '4px solid #07D1DE',
-                    }}
-                >
-                    <Typography
-                        variant="subtitle1"
-                        sx={{ color: '#07D1DE', fontWeight: 'bold' }}
-                    >
-                        {currentSpeaker?.name}:
-                    </Typography>
-                    <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic'}}>
-                        {displayedText}
-                    </Typography>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <CircularProgress />
                 </Box>
             ) : (
-                <Typography variant="body1" sx={{ marginTop: 3 }}>
-                    {/* Placeholder for when no text is displayed */}
-                </Typography>
-            )}
+                <>
+                    {fileName && (
+                        <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
+                            Uploaded File: {fileName}
+                        </Typography>
+                    )}
 
+                    <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
+
+                    {displayedText ? (
+                        <Box
+                            sx={{
+                                marginTop: 10,
+                                padding: 2,
+                                backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
+                                borderRadius: '10px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
+                                borderLeft: '4px solid #07D1DE',
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle1"
+                                sx={{ color: '#07D1DE', fontWeight: 'bold' }}
+                            >
+                                Speaker {currentSpeaker?.speakerId}:
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic' }}>
+                                {displayedText}
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Typography variant="body1" sx={{ marginTop: 3 }}>
+                        </Typography>
+                    )}
+                </>
+            )}
         </Box>
     );
 };
