@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 import axios from "../../axios";
 import convertTimeToSeconds from "../../utils/timeUtils";
@@ -9,13 +9,19 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
     const [speakers, setSpeakers] = useState([]);
     const [displayedText, setDisplayedText] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchSpeakers = async () => {
+            setLoading(true);
             try {
                 if (fileName && selectedFile) {
                     const formData = new FormData();
                     formData.append("audioFile", selectedFile);
+
+                    setSpeakers([]);
+                    setDisplayedText("");
+                    setCurrentSpeaker(null);
 
                     await axios.post(`/speakers/${fileName}`, formData, {
                         headers: { "Content-Type": "multipart/form-data" },
@@ -26,6 +32,8 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                 }
             } catch (error) {
                 console.error("Error fetching speaker data:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -77,43 +85,47 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
             }}
         >
-
-            {/* Display the file name if available */}
-            {fileName && (
-                <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
-                    Uploaded File: {fileName}
-                </Typography>
-            )}
-
-            <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
-
-            {displayedText ? (
-                <Box
-                    sx={{
-                        marginTop: 10,
-                        padding: 2,
-                        backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
-                        borderRadius: '10px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
-                        borderLeft: '4px solid #07D1DE',
-                    }}
-                >
-                    <Typography
-                        variant="subtitle1"
-                        sx={{ color: '#07D1DE', fontWeight: 'bold' }}
-                    >
-                        Speaker {currentSpeaker?.speakerId}:
-                    </Typography>
-                    <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic' }}>
-                        {displayedText}
-                    </Typography>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <CircularProgress />
                 </Box>
             ) : (
-                <Typography variant="body1" sx={{ marginTop: 3 }}>
-                    {/* Placeholder for when no text is displayed */}
-                </Typography>
-            )}
+                <>
+                    {fileName && (
+                        <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
+                            Uploaded File: {fileName}
+                        </Typography>
+                    )}
 
+                    <SpeakerWaveform speakers={speakers} currentTime={currentTime} isPlaying={isPlaying} />
+
+                    {displayedText ? (
+                        <Box
+                            sx={{
+                                marginTop: 10,
+                                padding: 2,
+                                backgroundColor: 'linear-gradient(180deg, #0D0C1D, #0E1D2F, #0F1D30)',
+                                borderRadius: '10px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.5)',
+                                borderLeft: '4px solid #07D1DE',
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle1"
+                                sx={{ color: '#07D1DE', fontWeight: 'bold' }}
+                            >
+                                Speaker {currentSpeaker?.speakerId}:
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 1, fontStyle: 'italic' }}>
+                                {displayedText}
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Typography variant="body1" sx={{ marginTop: 3 }}>
+                        </Typography>
+                    )}
+                </>
+            )}
         </Box>
     );
 };
