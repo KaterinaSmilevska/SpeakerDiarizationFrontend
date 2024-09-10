@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {Box, CircularProgress, Typography} from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 import axios from "../../axios";
 import convertTimeToSeconds from "../../utils/timeUtils";
-
 
 const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
     const [speakers, setSpeakers] = useState([]);
@@ -23,12 +22,11 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                     setDisplayedText("");
                     setCurrentSpeaker(null);
 
-                    await axios.post(`/speakers/${fileName}`, formData, {
+                    const response = await axios.post(`/speakers/${fileName}`, formData, {
                         headers: { "Content-Type": "multipart/form-data" },
-                    }).then(response => {
-                        console.log("Speaker data:", response.data);
-                        setSpeakers(response.data.speakers);
                     });
+
+                    setSpeakers(response.data.speakers);
                 }
             } catch (error) {
                 console.error("Error fetching speaker data:", error);
@@ -37,9 +35,7 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
             }
         };
 
-        fetchSpeakers().catch(error => {
-            console.error("Unhandled error:", error)
-        });
+        fetchSpeakers();
     }, [fileName, selectedFile]);
 
     useEffect(() => {

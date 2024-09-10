@@ -14,13 +14,14 @@ import {
 import { Home, Description, ImportExport, ChevronRight, ChevronLeft } from '@mui/icons-material';
 import sound from '../../assets/sound.png';
 import UploadAudio from "../UploadAudio/UploadAudio";
+import * as XLSX from 'xlsx';
 
 const drawerWidth = 300;
 const collapsedWidth = 80;
 
 const selectedGradient = 'linear-gradient(90deg, #0F2A3E, #10263C)';
 
-const Navigation = ({ onFileUpload }) => {
+const Navigation = ({ onFileUpload, speakersData }) => {
     const { pathname } = useLocation();
     const [open, setOpen] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,7 +30,7 @@ const Navigation = ({ onFileUpload }) => {
         setOpen(!open);
     };
 
-    const openUploadAudio= () => {
+    const openUploadAudio = () => {
         setIsModalOpen(true);
     };
 
@@ -40,7 +41,20 @@ const Navigation = ({ onFileUpload }) => {
     const handleFileUpload = (name) => {
         onFileUpload(name);
         closeUploadAudio();
-    }
+    };
+
+    const handleExport = () => {
+        console.log('Speakers Data:', speakersData); // Check data in the console
+        if (speakersData && speakersData.length > 0) {
+            const ws = XLSX.utils.json_to_sheet(speakersData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Speakers Data');
+            XLSX.writeFile(wb, 'speakers_data.xlsx');
+        } else {
+            alert("No data to export");
+        }
+    };
+
 
     return (
         <Box
@@ -144,8 +158,7 @@ const Navigation = ({ onFileUpload }) => {
                         </ListItem>
                         <ListItem
                             button
-                            component={Link}
-                            to="/export"
+                            onClick={handleExport} // Handle export functionality
                             sx={{
                                 background: pathname === "/export" ? selectedGradient : 'inherit',
                                 color: pathname === "/export" ? '#ffffff' : 'inherit',
@@ -177,7 +190,7 @@ const Navigation = ({ onFileUpload }) => {
                 }}
             />
 
-            <UploadAudio open={isModalOpen} onClose={closeUploadAudio} onFileUpload = {handleFileUpload} />
+            <UploadAudio open={isModalOpen} onClose={closeUploadAudio} onFileUpload={handleFileUpload} />
         </Box>
     );
 };
