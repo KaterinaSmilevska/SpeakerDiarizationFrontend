@@ -9,11 +9,19 @@ import {
     ListItemText,
     Divider,
     Typography,
-    IconButton
+    IconButton,
+    Tooltip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Button
 } from '@mui/material';
 import { Home, Description, ImportExport, ChevronRight, ChevronLeft } from '@mui/icons-material';
 import sound from '../../assets/sound.png';
 import UploadAudio from "../UploadAudio/UploadAudio";
+import ExportModal from "../ExportFile/ExportModal";
 import * as XLSX from 'xlsx';
 
 const drawerWidth = 300;
@@ -21,21 +29,31 @@ const collapsedWidth = 80;
 
 const selectedGradient = 'linear-gradient(90deg, #0F2A3E, #10263C)';
 
-const Navigation = ({ onFileUpload, speakersData }) => {
+const Navigation = ({ onFileUpload, exportData }) => {
     const { pathname } = useLocation();
     const [open, setOpen] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [isConfirmExportOpen, setIsConfirmExportOpen] = useState(false);
 
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
 
     const openUploadAudio = () => {
-        setIsModalOpen(true);
+        setIsUploadModalOpen(true);
     };
 
     const closeUploadAudio = () => {
-        setIsModalOpen(false);
+        setIsUploadModalOpen(false);
+    };
+
+    const openExportModal = () => {
+        setIsExportModalOpen(true);
+    };
+
+    const closeExportModal = () => {
+        setIsExportModalOpen(false);
     };
 
     const handleFileUpload = (name) => {
@@ -43,24 +61,57 @@ const Navigation = ({ onFileUpload, speakersData }) => {
         closeUploadAudio();
     };
 
-    const handleExport = () => {
-        console.log('Speakers Data:', speakersData); // Check data in the console
-        if (speakersData && speakersData.length > 0) {
-            const ws = XLSX.utils.json_to_sheet(speakersData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Speakers Data');
-            XLSX.writeFile(wb, 'speakers_data.xlsx');
-        } else {
-            alert("No data to export");
+    const handleExport = (fileName) => {
+        if (!exportData || exportData.length === 0) {
+            console.error('No data available for export');
+            return;
         }
+
+        // Log data to ensure it has the expected structure
+        console.log("Export data:", exportData);
+
+        // Prepare the data for export
+        const data = exportData.flatMap(speaker =>
+            speaker.segments.map(segment => ({
+                SpeakerID: speaker.speakerId,
+                StartTime: segment.startTime,
+                EndTime: segment.endTime,
+                Content: segment.content
+            }))
+        );
+
+        // Log the formatted data
+        console.log("Formatted data for export:", data);
+
+        // Create a new workbook and add the data
+        try {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "Speakers Data");
+
+            // Save the workbook as an Excel file
+            XLSX.writeFile(wb, `${fileName}.xlsx`);
+        } catch (error) {
+            console.error("Error creating Excel file:", error);
+        }
+
+        closeExportModal();
     };
 
+    const openConfirmExport = () => setIsConfirmExportOpen(true);
+    const closeConfirmExport = () => setIsConfirmExportOpen(false);
+
+    const confirmExport = (fileName) => {
+        handleExport(fileName);
+        closeConfirmExport();
+    };
 
     return (
         <Box
             sx={{
                 position: 'relative',
-                width: open ? drawerWidth : collapsedWidth,
+                minWidth: open ? drawerWidth : collapsedWidth,
+                maxWidth: open ? drawerWidth : collapsedWidth,
                 height: '100%',
                 transition: 'width 0.3s',
             }}
@@ -123,55 +174,63 @@ const Navigation = ({ onFileUpload, speakersData }) => {
                             overflowY: 'auto',
                         }}
                     >
-                        <ListItem
-                            button
-                            component={Link}
-                            to="/"
-                            sx={{
-                                background: pathname === "/" ? selectedGradient : 'inherit',
-                                color: pathname === "/" ? '#ffffff' : 'inherit',
-                                borderRadius: 2,
-                                padding: '8px 16px',
-                                minHeight: 'auto',
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: 'inherit' }}>
-                                <Home />
-                            </ListItemIcon>
-                            {open && <ListItemText primary="Home" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
-                        </ListItem>
-                        <ListItem
-                            button
-                            onClick={openUploadAudio}
-                            sx={{
-                                background: pathname === "/documents" ? selectedGradient : 'inherit',
-                                color: pathname === "/documents" ? '#ffffff' : 'inherit',
-                                borderRadius: 2,
-                                padding: '8px 16px',
-                                minHeight: 'auto',
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: 'inherit' }}>
-                                <Description />
-                            </ListItemIcon>
-                            {open && <ListItemText primary="Upload File" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
-                        </ListItem>
-                        <ListItem
-                            button
-                            onClick={handleExport} // Handle export functionality
-                            sx={{
-                                background: pathname === "/export" ? selectedGradient : 'inherit',
-                                color: pathname === "/export" ? '#ffffff' : 'inherit',
-                                borderRadius: 2,
-                                padding: '8px 16px',
-                                minHeight: 'auto',
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: 'inherit' }}>
-                                <ImportExport />
-                            </ListItemIcon>
-                            {open && <ListItemText primary="Export" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
-                        </ListItem>
+                        <Tooltip title={open ? "" : "Home"} placement="right">
+                            <ListItem
+                                button
+                                component={Link}
+                                to="/"
+                                sx={{
+                                    background: pathname === "/" ? selectedGradient : 'inherit',
+                                    color: pathname === "/" ? '#ffffff' : 'inherit',
+                                    borderRadius: 2,
+                                    padding: '8px 16px',
+                                    minHeight: 'auto',
+                                }}
+                            >
+                                <ListItemIcon sx={{ color: 'inherit' }}>
+                                    <Home />
+                                </ListItemIcon>
+                                {open && <ListItemText primary="Home" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
+                            </ListItem>
+                        </Tooltip>
+
+                        <Tooltip title={open ? "" : "Upload File"} placement="right">
+                            <ListItem
+                                button
+                                onClick={openUploadAudio}
+                                sx={{
+                                    background: pathname === "/documents" ? selectedGradient : 'inherit',
+                                    color: pathname === "/documents" ? '#ffffff' : 'inherit',
+                                    borderRadius: 2,
+                                    padding: '8px 16px',
+                                    minHeight: 'auto',
+                                }}
+                            >
+                                <ListItemIcon sx={{ color: 'inherit' }}>
+                                    <Description />
+                                </ListItemIcon>
+                                {open && <ListItemText primary="Upload File" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
+                            </ListItem>
+                        </Tooltip>
+
+                        <Tooltip title={open ? "" : "Export"} placement="right">
+                            <ListItem
+                                button
+                                onClick={openConfirmExport}
+                                sx={{
+                                    background: pathname === "/export" ? selectedGradient : 'inherit',
+                                    color: pathname === "/export" ? '#ffffff' : 'inherit',
+                                    borderRadius: 2,
+                                    padding: '8px 16px',
+                                    minHeight: 'auto',
+                                }}
+                            >
+                                <ListItemIcon sx={{ color: 'inherit' }}>
+                                    <ImportExport />
+                                </ListItemIcon>
+                                {open && <ListItemText primary="Export" primaryTypographyProps={{ style: { color: 'inherit' } }} />}
+                            </ListItem>
+                        </Tooltip>
                     </List>
 
                     <Divider sx={{ backgroundColor: '#ffffff' }} />
@@ -190,7 +249,20 @@ const Navigation = ({ onFileUpload, speakersData }) => {
                 }}
             />
 
-            <UploadAudio open={isModalOpen} onClose={closeUploadAudio} onFileUpload={handleFileUpload} />
+            <UploadAudio open={isUploadModalOpen} onClose={closeUploadAudio} onFileUpload={handleFileUpload} />
+            <ExportModal open={isExportModalOpen} onClose={closeExportModal} onExport={handleExport} />
+
+            {/* Confirmation Dialog for Export */}
+            <Dialog open={isConfirmExportOpen} onClose={closeConfirmExport}>
+                <DialogTitle>Confirm Export</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>Are you sure you want to export the data?</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeConfirmExport}>Cancel</Button>
+                    <Button onClick={() => confirmExport("exported_data")}>Confirm</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

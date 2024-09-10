@@ -25,7 +25,7 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                     const response = await axios.post(`/speakers/${fileName}`, formData, {
                         headers: { "Content-Type": "multipart/form-data" },
                     });
-
+                    console.log("Speaker data:", response.data);
                     setSpeakers(response.data.speakers);
                 }
             } catch (error) {
@@ -35,7 +35,9 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
             }
         };
 
-        fetchSpeakers();
+        fetchSpeakers().catch(error => {
+            console.error("Unhandled error:", error);
+        });
     }, [fileName, selectedFile]);
 
     useEffect(() => {
@@ -118,6 +120,7 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                         </Box>
                     ) : (
                         <Typography variant="body1" sx={{ marginTop: 3 }}>
+                            No active speaker at the moment.
                         </Typography>
                     )}
                 </>

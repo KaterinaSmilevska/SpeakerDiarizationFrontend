@@ -3,13 +3,12 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import Home from '../Home/Home';
 import AudioPlayer from "../Player/AudioPlayer";
-import ExportFile from '../ExportFile/ExportFile';
 
 const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioFile, setAudioFile] = useState(null);
-    const [speakersData, setSpeakersData] = useState([]); // State to store speakers data
+    const [exportData, setExportData] = useState([]);
 
     const handleTimeUpdate = (time) => {
         setCurrentTime(time);
@@ -23,14 +22,14 @@ const App = () => {
         setAudioFile(file);
     };
 
-    const handleSpeakersData = (data) => {
-        setSpeakersData(data);
+    const handleExportData = (data) => {
+        setExportData(data);
     };
 
     return (
         <Router>
             <div style={{ display: 'flex', height: '100vh' }}>
-                <Navigation onFileUpload={handleFileUpload} />
+                <Navigation onFileUpload={handleFileUpload} exportData={exportData} />
                 <main style={{
                     flexGrow: 1,
                     display: 'flex',
@@ -48,7 +47,7 @@ const App = () => {
                                             isPlaying={isPlaying}
                                             fileName={audioFile ? audioFile.name : 'No file uploaded'}
                                             selectedFile={audioFile}
-                                            onSpeakersData={handleSpeakersData} // Pass handler to Home component
+                                            onExport={handleExportData}
                                         />
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
@@ -60,10 +59,6 @@ const App = () => {
                                     </div>
                                 </div>
                             }
-                        />
-                        <Route
-                            path="/export"
-                            element={<ExportFile speakersData={speakersData} />} // Route for ExportFile component
                         />
                     </Routes>
                 </main>
