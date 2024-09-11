@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import Home from '../Home/Home';
@@ -8,6 +8,7 @@ const App = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioFile, setAudioFile] = useState(null);
+    const [exportData, setExportData] = useState([]);
 
     const handleTimeUpdate = (time) => {
         setCurrentTime(time);
@@ -19,12 +20,16 @@ const App = () => {
 
     const handleFileUpload = (file) => {
         setAudioFile(file);
-    }
+    };
+
+    const handleSpeakersUpdate = useCallback((data) => {
+        setExportData(data);
+    }, []);
 
     return (
         <Router>
             <div style={{ display: 'flex', height: '100vh' }}>
-                <Navigation onFileUpload={handleFileUpload} />
+                <Navigation onFileUpload={handleFileUpload} exportData={exportData} />
                 <main style={{
                     flexGrow: 1,
                     display: 'flex',
@@ -37,10 +42,20 @@ const App = () => {
                             element={
                                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                     <div style={{ flexGrow: 1, overflow: 'auto' }}>
-                                        <Home currentTime={currentTime} isPlaying={isPlaying} fileName={audioFile? audioFile.name : 'No file uploaded'} selectedFile={audioFile}/>
+                                        <Home
+                                            currentTime={currentTime}
+                                            isPlaying={isPlaying}
+                                            fileName={audioFile ? audioFile.name : 'No file uploaded'}
+                                            selectedFile={audioFile}
+                                            onExport={handleSpeakersUpdate}
+                                        />
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
-                                        <AudioPlayer onTimeUpdate={handleTimeUpdate} onPlayPause={handlePlayPause} audioFile={audioFile}/>
+                                        <AudioPlayer
+                                            onTimeUpdate={handleTimeUpdate}
+                                            onPlayPause={handlePlayPause}
+                                            audioFile={audioFile}
+                                        />
                                     </div>
                                 </div>
                             }
