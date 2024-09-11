@@ -4,7 +4,7 @@ import SpeakerWaveform from "../SpeakerWaveForm/SpeakerWaveForm";
 import axios from "../../axios";
 import convertTimeToSeconds from "../../utils/timeUtils";
 
-const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
+const Home = ({ currentTime, isPlaying, fileName, selectedFile, onExport }) => {
     const [speakers, setSpeakers] = useState([]);
     const [displayedText, setDisplayedText] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState(null);
@@ -27,6 +27,7 @@ const Home = ({ currentTime, isPlaying, fileName, selectedFile }) => {
                     });
                     console.log("Speaker data:", response.data);
                     setSpeakers(response.data.speakers);
+                    onExport(response.data.speakers);
                 }
             } catch (error) {
                 console.error("Error fetching speaker data:", error);

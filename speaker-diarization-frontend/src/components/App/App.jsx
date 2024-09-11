@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import Home from '../Home/Home';
@@ -22,9 +22,9 @@ const App = () => {
         setAudioFile(file);
     };
 
-    const handleExportData = (data) => {
+    const handleSpeakersUpdate = useCallback((data) => {
         setExportData(data);
-    };
+    }, []);
 
     return (
         <Router>
@@ -47,7 +47,7 @@ const App = () => {
                                             isPlaying={isPlaying}
                                             fileName={audioFile ? audioFile.name : 'No file uploaded'}
                                             selectedFile={audioFile}
-                                            onExport={handleExportData}
+                                            onExport={handleSpeakersUpdate}
                                         />
                                     </div>
                                     <div style={{ flexShrink: 0 }}>
