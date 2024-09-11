@@ -67,10 +67,9 @@ const Navigation = ({ onFileUpload, exportData }) => {
             return;
         }
 
-        // Log data to ensure it has the expected structure
+
         console.log("Export data:", exportData);
 
-        // Prepare the data for export
         const data = exportData.flatMap(speaker =>
             speaker.segments.map(segment => ({
                 SpeakerID: speaker.speakerId,
@@ -80,16 +79,15 @@ const Navigation = ({ onFileUpload, exportData }) => {
             }))
         );
 
-        // Log the formatted data
+
         console.log("Formatted data for export:", data);
 
-        // Create a new workbook and add the data
+
         try {
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(data);
             XLSX.utils.book_append_sheet(wb, ws, "Speakers Data");
 
-            // Save the workbook as an Excel file
             XLSX.writeFile(wb, `${fileName}.xlsx`);
         } catch (error) {
             console.error("Error creating Excel file:", error);
@@ -154,7 +152,7 @@ const Navigation = ({ onFileUpload, exportData }) => {
                                     alt="Logo"
                                     style={{ width: 40, height: 40, marginRight: 8 }}
                                 />
-                                <Typography variant="h6">App Name</Typography>
+                                <Typography variant="h6">Speaker Diarization</Typography>
                                 <IconButton onClick={handleDrawerToggle} aria-label="Collapse menu">
                                     <ChevronLeft sx={{ color: 'white' }} />
                                 </IconButton>
